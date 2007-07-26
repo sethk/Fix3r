@@ -1,0 +1,19 @@
+{
+    IBClasses = (
+        {CLASS = F3AppDelegate; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {CLASS = F3Document; LANGUAGE = ObjC; SUPERCLASS = NSDocument; }, 
+        {
+            ACTIONS = {stringEncodingChanged = id; }; 
+            CLASS = F3TagController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                document = F3Document; 
+                stringEncodingPopUp = NSPopUpButton; 
+                window = NSWindow; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }
+    ); 
+    IBVersion = 1; 
+}

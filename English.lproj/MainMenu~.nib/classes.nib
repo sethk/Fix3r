@@ -1,0 +1,8 @@
+{
+    IBClasses = (
+        {CLASS = F3AppDelegate; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {CLASS = F3Document; LANGUAGE = ObjC; SUPERCLASS = NSDocument; }, 
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }
+    ); 
+    IBVersion = 1; 
+}
