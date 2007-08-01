@@ -132,7 +132,7 @@
             if (pointer[i+Position] == 0) break; // if null end string
         } else j=i;
     }
-    return [[NSString stringWithCString: pointer + Position length:j+1] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:[NSString stringWithFormat:kTrimSetStr]]];
+    return [[NSString stringWithCString: pointer + Position length:j] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:[NSString stringWithFormat:kTrimSetStr]]];
 }
 
 -(int)getGenre
