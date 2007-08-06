@@ -388,8 +388,8 @@ need to tell the Framework to write
 the updated tags back to the file.&nbsp; You
 need to use <span style="font-weight: bold;">- (int) updateFile;</span>&nbsp;
 to
-write the tag to the file.&nbsp; The method return 0 if it succeeds, 1
-if it fails to update a V1 tag, 2 if it fails to update a v2 tag and 3
+write the tag to the file.&nbsp; The method return 0 if it succeeds, -1
+if it fails to update a V1 tag, -2 if it fails to update a v2 tag and -3
 if it fails to update both tags.&nbsp; The high level API will re-pad
 the tag
 if needed and will write both a V1 and V2 tag to ensure maximum
