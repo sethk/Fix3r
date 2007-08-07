@@ -10,18 +10,38 @@
 #import	<ID3/TagAPI.h>
 
 static const NSStringEncoding		kDefaultStringEncoding = NSUTF8StringEncoding;
+static NSString						*kErrorDomain = @"F3Document Error Domain";
+static NSString						*kDocumentType = @"MPEG Audio Layer 3";
+#if XSETHK_TODO
+static NSString						*kBackupExtension = @"backup.id3";
+#endif // XSETHK_TODO
 static NSDictionary					*kUndoStrings;
+
+#define F3DocumentError(desc...)	[NSError errorWithDomain:kErrorDomain\
+														code:-1\
+													userInfo:\
+								[NSDictionary dictionaryWithObject:[NSString stringWithFormat:desc]\
+															forKey:NSLocalizedDescriptionKey]]
 
 @interface F3Document (PrivateAPI)
 
 - (NSString *)convertString:(NSString *)string;
 - (void)transformStrings;
+- (void)writeStrings;
 - (void)setUndoValue:(NSObject *)newValue forKey:(NSString *)key;
 - (void)setValue:(NSObject *)newValue forKey:(NSString *)key iVar:(NSObject **)pIVar tagValue:(NSObject *)tagValue;
 
 @end
 
 @implementation F3Document (PrivateAPI)
+
++ (NSError *)errorWithLocalizedDescription:(NSString *)description
+{
+	return [NSError errorWithDomain:kErrorDomain
+							   code:-1
+						   userInfo:[NSDictionary dictionaryWithObject:description
+																forKey:NSLocalizedDescriptionKey]];
+}
 
 - (NSString *)convertString:(NSString *)string
 {
@@ -44,6 +64,18 @@ static NSDictionary					*kUndoStrings;
 	[self setArtist:[self convertString:[tag getArtist]]];
 	[self setAlbum:[self convertString:[tag getAlbum]]];
 	[self setComments:[self convertString:[tag getComments]]];
+}
+
+- (void)writeStrings
+{
+	if ([self willWriteName])
+		[tag setTitle:[self name]];
+	if ([self willWriteArtist])
+		[tag setArtist:[self artist]];
+	if ([self willWriteAlbum])
+		[tag setAlbum:[self album]];
+	if ([self willWriteComments])
+		[tag setComments:[self comments]];
 }
 
 // Wrapper for undo:
@@ -112,15 +144,110 @@ static NSDictionary					*kUndoStrings;
 {
 	NSUndoManager *undoManager = [self undoManager];
 
-	if (![absoluteURL isFileURL])
+	if (![typeName isEqualToString:kDocumentType])
+	{
+		*outError = F3DocumentError(NSLocalizedString(@"Unsupported file type %@", nil), typeName);
 		return NO;
+	}
+
+	if (![absoluteURL isFileURL])
+	{
+		*outError = F3DocumentError(NSLocalizedString(@"Can't read from a non-file URL", nil));
+		return NO;
+	}
 
 	if (![tag examineFile:[absoluteURL path]])
+	{
+		*outError = F3DocumentError(NSLocalizedString(@"Could not read ID3 tag from file", nil));
 		return NO;
+	}
 
 	[undoManager disableUndoRegistration];
 	[self transformStrings];
 	[undoManager enableUndoRegistration];
+
+	return YES;
+}
+
+-	(BOOL)writeToURL:(NSURL *)absoluteURL
+			  ofType:(NSString *)typeName
+	forSaveOperation:(NSSaveOperationType)saveOperation
+ originalContentsURL:(NSURL *)absoluteOriginalContentsURL
+			   error:(NSError **)outError
+{
+#if SETHK_TODO
+	NSString *backupPath = nil;
+
+	if ([absoluteURL isFileURL] && [absoluteURL isEqual:absoluteOriginalContentsURL] && [tag v1TagPresent])
+	{
+		// Make a backup of just the tag:
+		NSData *tagData;
+
+		backupPath = [[absoluteURL path] stringByAppendingPathExtension:kBackupExtension];
+
+		if ([tag v2TagPresent])
+			tagData = [tag getV2Tag]->tag;
+		else
+			tagData = [tag getV1Tag]->tag;
+		if (![tagData writeToFile:backupPath options:NSAtomicWrite error:outError])
+		{
+			F3DocumentError(NSLocalizedString(@"Could not write backup tag to \"%@\"", nil), backupPath);
+			return NO;
+		}
+	}
+#endif // SETHK_TODO
+
+	if (![super writeToURL:absoluteURL
+					ofType:typeName
+		  forSaveOperation:saveOperation
+	   originalContentsURL:absoluteOriginalContentsURL
+					 error:outError])
+	{
+#if SETHK_TODO
+		if (backupPath)
+			[[NSFileManager defaultManager] removeFileAtPath:backupPath handler:nil];
+#endif // SETHK_TODO
+
+		return NO;
+	}
+
+	return YES;
+}
+
+- (BOOL)writeToURL:(NSURL *)absoluteURL ofType:(NSString *)typeName error:(NSError **)outError
+{
+	NSString *oldPath, *newPath;
+
+	if (![absoluteURL isFileURL])
+	{
+		*outError = F3DocumentError(NSLocalizedString(@"Can't write to non-file URL", nil));
+		return NO;
+	}
+
+	oldPath = [tag getPath];
+	newPath = [absoluteURL path];
+	if (![oldPath isEqualToString:newPath])
+	{
+		if (![[NSFileManager defaultManager] copyPath:oldPath toPath:newPath handler:nil])
+		{
+			*outError = F3DocumentError(NSLocalizedString(@"Could not copy path \"%@\" to \"%@\"", nil),
+					oldPath, newPath);
+			return NO;
+		}
+
+		if (![tag examineFile:newPath])
+		{
+			*outError = F3DocumentError(NSLocalizedString(@"Could not read ID3 tag from file copy", nil));
+			return NO;
+		}
+	}
+
+	[self writeStrings];
+	if ([tag updateFile] != 0)
+	{
+		*outError = F3DocumentError(NSLocalizedString(@"Could not update tag in file \"%@\"", nil), newPath);
+		return NO;
+	}
 
 	return YES;
 }

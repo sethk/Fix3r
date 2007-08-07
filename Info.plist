@@ -25,7 +25,7 @@
 				<string>audio/x-mp3</string>
 			</array>
 			<key>CFBundleTypeName</key>
-			<string>DocumentType</string>
+			<string>MPEG Audio Layer 3</string>
 			<key>CFBundleTypeOSTypes</key>
 			<array>
 				<string>MPG3,</string>
