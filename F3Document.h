@@ -9,11 +9,13 @@
 #import <Cocoa/Cocoa.h>
 
 @class TagAPI;
+@class id3V1Tag;
 
 @interface F3Document : NSDocument
 {
 @protected
 	TagAPI *tag;
+	id3V1Tag *v1Tag;
 
 @private
 	NSStringEncoding stringEncoding;

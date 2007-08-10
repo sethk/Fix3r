@@ -10,6 +10,7 @@
 #import	<ID3/TagAPI.h>
 
 static const NSStringEncoding		kDefaultStringEncoding = NSUTF8StringEncoding;
+static const NSStringEncoding		kInputStringEncoding = NSISOLatin1StringEncoding;
 static NSString						*kErrorDomain = @"F3Document Error Domain";
 static NSString						*kDocumentType = @"MPEG Audio Layer 3";
 #if XSETHK_TODO
@@ -60,10 +61,10 @@ static NSDictionary					*kUndoStrings;
 
 - (void)transformStrings
 {
-	[self setName:[self convertString:[tag getTitle]]];
-	[self setArtist:[self convertString:[tag getArtist]]];
-	[self setAlbum:[self convertString:[tag getAlbum]]];
-	[self setComments:[self convertString:[tag getComments]]];
+	[self setName:[self convertString:[v1Tag getTitle]]];
+	[self setArtist:[self convertString:[v1Tag getArtist]]];
+	[self setAlbum:[self convertString:[v1Tag getAlbum]]];
+	[self setComments:[self convertString:[v1Tag getComment]]];
 }
 
 - (void)writeStrings
@@ -162,6 +163,27 @@ static NSDictionary					*kUndoStrings;
 		return NO;
 	}
 
+	if (![tag v1TagPresent])
+	{
+		*outError = F3DocumentError(NSLocalizedString(@"File does not contain an ID3v1 tag", nil));
+		return NO;
+	}
+
+	if ([tag v2TagPresent])
+	{
+		if (NSRunAlertPanel(NSLocalizedString(@"Conversion Warning", nil),
+				NSLocalizedString(@"This file contains both ID3v1 and ID3v2 tags.  Converting it may result in the loss of data.  Do you want to continue?", nil),
+				NSLocalizedString(@"Continue", nil),
+				NSLocalizedString(@"Cancel", nil),
+				nil) == NSAlertAlternateReturn)
+		{
+			*outError = F3DocumentError(NSLocalizedString(@"User cancelled file open", nil));
+			return NO;
+		}
+	}
+
+	v1Tag = [tag getV1Tag];
+
 	[undoManager disableUndoRegistration];
 	[self transformStrings];
 	[undoManager enableUndoRegistration];
@@ -178,7 +200,7 @@ static NSDictionary					*kUndoStrings;
 #if SETHK_TODO
 	NSString *backupPath = nil;
 
-	if ([absoluteURL isFileURL] && [absoluteURL isEqual:absoluteOriginalContentsURL] && [tag v1TagPresent])
+	if ([absoluteURL isFileURL] && [absoluteURL isEqual:absoluteOriginalContentsURL])
 	{
 		// Make a backup of just the tag:
 		NSData *tagData;
@@ -282,7 +304,7 @@ static NSDictionary					*kUndoStrings;
 
 - (void)setName:(NSString *)newName
 {
-	[self setValue:newName forKey:@"name" iVar:&name tagValue:[tag getTitle]];
+	[self setValue:newName forKey:@"name" iVar:&name tagValue:[v1Tag getTitle]];
 }
 
 - (BOOL)willWriteName
@@ -308,7 +330,7 @@ static NSDictionary					*kUndoStrings;
 
 - (void)setArtist:(NSString *)newArtist
 {
-	[self setValue:newArtist forKey:@"artist" iVar:&artist tagValue:[tag getArtist]];
+	[self setValue:newArtist forKey:@"artist" iVar:&artist tagValue:[v1Tag getArtist]];
 }
 
 - (BOOL)willWriteArtist
@@ -334,7 +356,7 @@ static NSDictionary					*kUndoStrings;
 
 - (void)setAlbum:(NSString *)newAlbum
 {
-	[self setValue:newAlbum forKey:@"album" iVar:&album tagValue:[tag getAlbum]];
+	[self setValue:newAlbum forKey:@"album" iVar:&album tagValue:[v1Tag getAlbum]];
 }
 
 - (BOOL)willWriteAlbum
@@ -360,7 +382,7 @@ static NSDictionary					*kUndoStrings;
 
 - (void)setComments:(NSString *)newComments
 {
-	[self setValue:newComments forKey:@"comments" iVar:&comments tagValue:[tag getComments]];
+	[self setValue:newComments forKey:@"comments" iVar:&comments tagValue:[v1Tag getComment]];
 }
 
 - (BOOL)willWriteComments
