@@ -41,7 +41,7 @@
 #define TrackOffset	3
 #define GenreOffset     1
 
-#define kTrimSetStr	@"%c%@", '\0', @" \r\n\t"
+#define kTrimSetStr	@" \r\n\t"
 
 @implementation id3V1Tag
 -(id)init
@@ -123,16 +123,10 @@
 {  // ensure that we only extract the string and not the crap at the end
     char * pointer = (char *) [tag bytes];
     int i = 0;
-    int j = 0;
     //step through the string
-    for (i = 0;i < MaxLength;i++)
-    {
-        if ((pointer[i+Position] == 0) || (pointer[i+Position] == ' '))
-        {
-            if (pointer[i+Position] == 0) break; // if null end string
-        } else j=i;
-    }
-    return [[NSString stringWithCString: pointer + Position length:j] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:[NSString stringWithFormat:kTrimSetStr]]];
+    for (i = 0;i < MaxLength && pointer[i+Position] != 0;i++)
+		;
+    return [[NSString stringWithCString: pointer + Position length:i] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:[NSString stringWithFormat:kTrimSetStr]]];
 }
 
 -(int)getGenre
