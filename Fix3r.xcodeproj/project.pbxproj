@@ -16,9 +16,7 @@
 		FD0D7B820C24F4E700A57C0A /* F3Document.nib in Resources */ = {isa = PBXBuildFile; fileRef = FD0D7B800C24F4E700A57C0A /* F3Document.nib */; };
 		FD0D7BE90C25149100A57C0A /* ID3.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FD0D7BE80C25149100A57C0A /* ID3.framework */; };
 		FD0D7BEC0C25149B00A57C0A /* ID3.framework in CopyFrameworks */ = {isa = PBXBuildFile; fileRef = FD0D7BE80C25149100A57C0A /* ID3.framework */; };
-		FD0D7D7A0C252F9F00A57C0A /* F3AppDelegate.h in CopyFrameworks */ = {isa = PBXBuildFile; fileRef = FD0D7D780C252F9F00A57C0A /* F3AppDelegate.h */; };
 		FD0D7D7B0C252F9F00A57C0A /* F3AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = FD0D7D790C252F9F00A57C0A /* F3AppDelegate.m */; };
-		FD0D7EC20C29058800A57C0A /* F3TagController.h in CopyFrameworks */ = {isa = PBXBuildFile; fileRef = FD0D7EC00C29058800A57C0A /* F3TagController.h */; };
 		FD0D7EC30C29058800A57C0A /* F3TagController.m in Sources */ = {isa = PBXBuildFile; fileRef = FD0D7EC10C29058800A57C0A /* F3TagController.m */; };
 /* End PBXBuildFile section */
 
@@ -47,8 +45,6 @@
 			dstSubfolderSpec = 10;
 			files = (
 				FD0D7BEC0C25149B00A57C0A /* ID3.framework in CopyFrameworks */,
-				FD0D7D7A0C252F9F00A57C0A /* F3AppDelegate.h in CopyFrameworks */,
-				FD0D7EC20C29058800A57C0A /* F3TagController.h in CopyFrameworks */,
 			);
 			name = CopyFrameworks;
 			runOnlyForDeploymentPostprocessing = 0;
